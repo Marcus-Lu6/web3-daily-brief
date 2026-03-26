@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web3 Daily Brief</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2128;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-dim: #8b949e;
+    --text-muted: #484f58;
+    --accent: #58a6ff;
+    --accent-dim: #1f3244;
+    --green: #3fb950;
+    --green-bg: #0f2a0f;
+    --red: #f85149;
+    --red-bg: #2a0f0f;
+    --yellow: #d29922;
+    --yellow-bg: #2a1f0a;
+    --orange: #e3b341;
+    --purple: #bc8cff;
+    --fire: #ff7b54;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'SF Pro Text', system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ── Sidebar ── */
+  #sidebar {
+    width: 220px;
+    min-height: 100vh;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    position: fixed;
+    top: 0; left: 0;
+    overflow-y: auto;
+    z-index: 100;
+  }
+
+  .sidebar-logo {
+    padding: 0 20px 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+  .sidebar-logo h2 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.3px;
+  }
+  .sidebar-logo span {
+    font-size: 11px;
+    color: var(--text-dim);
+    display: block;
+    margin-top: 2px;
+  }
+
+  .sidebar-section-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 8px 20px 4px;
+  }
+
+  .date-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 20px;
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 13px;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+    transition: all 0.15s;
+  }
+  .date-link:hover { background: var(--surface2); color: var(--text); }
+  .date-link.active {
+    color: var(--accent);
+    border-left-color: var(--accent);
+    background: var(--accent-dim);
+  }
+  .date-link .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    flex-shrink: 0;
+  }
+  .date-link.active .dot { background: var(--accent); }
+  .date-link .badge-new {
+    margin-left: auto;
+    font-size: 9px;
+    background: var(--green);
+    color: #000;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-weight: 700;
+  }
+
+  /* ── Main ── */
+  #main {
+    margin-left: 220px;
+    flex: 1;
+    min-height: 100vh;
+  }
+
+  #header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  #header .date-display {
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  #header .date-display strong {
+    color: var(--text);
+    font-size: 15px;
+  }
+  #header .meta {
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex; gap: 16px; align-items: center;
+  }
+  .sentiment-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 8px; border-radius: 4px;
+    font-size: 11px; font-weight: 600;
+  }
+  .sentiment-fear { background: var(--red-bg); color: var(--red); }
+  .sentiment-greed { background: var(--green-bg); color: var(--green); }
+  .sentiment-neutral { background: var(--yellow-bg); color: var(--yellow); }
+
+  #content {
+    padding: 32px 40px;
+    max-width: 1100px;
+  }
+
+  /* ── Section ── */
+  .section {
+    margin-bottom: 36px;
+  }
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-dim);
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  /* ── Summary Card ── */
+  .summary-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin-bottom: 20px;
+    border-left: 3px solid var(--accent);
+  }
+  .summary-card .headline {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .summary-card .meta-row {
+    margin-top: 10px;
+    display: flex; gap: 20px; flex-wrap: wrap;
+  }
+  .price-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--surface2); border: 1px solid var(--border);
+    padding: 4px 10px; border-radius: 6px;
+    font-size: 12px; font-weight: 600;
+  }
+  .price-pill .label { color: var(--text-muted); font-weight: 400; }
+
+  /* ── Top 3 Cards ── */
+  .top3-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  @media (max-width: 900px) { .top3-grid { grid-template-columns: 1fr; } }
+  .top3-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .top3-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  }
+  .top3-card.p0::before { background: var(--red); }
+  .top3-card.p1::before { background: var(--orange); }
+  .top3-card.p2::before { background: var(--accent); }
+  .top3-card .rank {
+    font-size: 10px; font-weight: 700;
+    color: var(--text-muted); letter-spacing: 0.5px;
+    text-transform: uppercase; margin-bottom: 6px;
+  }
+  .top3-card .event { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 8px; line-height: 1.4; }
+  .top3-card .impact { font-size: 12px; color: var(--text-dim); margin-bottom: 6px; line-height: 1.4; }
+  .top3-card .action {
+    font-size: 11px; color: var(--accent);
+    background: var(--accent-dim); padding: 4px 8px;
+    border-radius: 4px; display: inline-block;
+  }
+
+  /* ── Tables ── */
+  .table-wrap { overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  thead th {
+    background: var(--surface2);
+    color: var(--text-dim);
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+  tbody tr:hover { background: var(--surface2); }
+  tbody tr:last-child { border-bottom: none; }
+  td { padding: 9px 12px; color: var(--text); vertical-align: middle; }
+  td.dim { color: var(--text-dim); }
+  td.muted { color: var(--text-muted); }
+
+  .rank-num {
+    font-size: 11px; font-weight: 700; color: var(--text-muted);
+    width: 24px; text-align: center;
+  }
+  .chain-name { font-weight: 600; color: var(--text); }
+  .chain-type {
+    display: inline-block; font-size: 10px; font-weight: 600;
+    padding: 1px 5px; border-radius: 3px; margin-left: 4px;
+    background: var(--surface2); color: var(--text-muted);
+  }
+
+  .score-bar-cell { min-width: 120px; }
+  .score-bar {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .score-bar .bar-bg {
+    flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden;
+  }
+  .score-bar .bar-fill { height: 100%; border-radius: 2px; background: var(--accent); }
+  .score-bar .val { font-size: 12px; font-weight: 700; color: var(--text); min-width: 24px; }
+
+  .change-up { color: var(--green); font-weight: 600; }
+  .change-down { color: var(--red); font-weight: 600; }
+  .change-flat { color: var(--text-muted); }
+  .change-hot { color: var(--fire); font-weight: 700; }
+
+  .signal-tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; padding: 2px 7px; border-radius: 4px;
+  }
+  .sig-up { background: var(--green-bg); color: var(--green); }
+  .sig-down { background: var(--red-bg); color: var(--red); }
+  .sig-warn { background: var(--yellow-bg); color: var(--yellow); }
+  .sig-hot { background: #2a1500; color: var(--fire); }
+  .sig-new { background: #1a1f2a; color: var(--purple); }
+
+  /* ── DeFi Signal Cards ── */
+  .signal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 800px) { .signal-grid { grid-template-columns: 1fr; } }
+  .signal-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+  }
+  .signal-card.star3 { border-color: var(--fire); }
+  .signal-card.star2 { border-color: var(--yellow); }
+  .signal-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 10px;
+  }
+  .signal-header .title { font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.4; }
+  .star-badge { font-size: 13px; color: var(--fire); white-space: nowrap; }
+  .signal-stats {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-bottom: 10px;
+  }
+  .stat-pill {
+    background: var(--surface2); border: 1px solid var(--border);
+    padding: 4px 10px; border-radius: 5px; font-size: 12px;
+  }
+  .stat-pill .k { color: var(--text-muted); margin-right: 3px; }
+  .stat-pill .v { font-weight: 700; color: var(--text); }
+  .stat-pill .v.hot { color: var(--green); }
+  .stat-pill .v.cold { color: var(--red); }
+  .signal-points { list-style: none; padding: 0; }
+  .signal-points li {
+    font-size: 12px; color: var(--text-dim); padding: 3px 0;
+    padding-left: 14px; position: relative; line-height: 1.5;
+  }
+  .signal-points li::before {
+    content: '·'; position: absolute; left: 4px; color: var(--text-muted);
+  }
+  .signal-action {
+    margin-top: 10px; padding: 8px 10px;
+    background: var(--accent-dim); border-radius: 5px;
+    font-size: 12px; color: var(--accent); line-height: 1.4;
+  }
+  .signal-action .label { font-weight: 700; margin-right: 4px; }
+
+  /* ── Alerts ── */
+  .alert-row { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .alert-row:last-child { border-bottom: none; }
+  .alert-time { font-size: 11px; color: var(--text-muted); min-width: 44px; padding-top: 2px; }
+  .alert-level {
+    font-size: 10px; font-weight: 700; padding: 2px 6px;
+    border-radius: 3px; white-space: nowrap; flex-shrink: 0;
+  }
+  .level-p0 { background: var(--red-bg); color: var(--red); }
+  .level-p1 { background: var(--yellow-bg); color: var(--yellow); }
+  .level-watch { background: #1a2030; color: var(--purple); }
+  .alert-text { font-size: 13px; color: var(--text-dim); }
+  .alert-text strong { color: var(--text); }
+
+  /* ── Action Table ── */
+  .action-p0 { color: var(--red); font-weight: 700; }
+  .action-p1 { color: var(--orange); font-weight: 600; }
+  .action-p2 { color: var(--text-muted); }
+
+  /* ── Security ── */
+  .security-card {
+    background: var(--red-bg);
+    border: 1px solid var(--red);
+    border-radius: 8px; padding: 14px 18px;
+    display: flex; gap: 16px; align-items: flex-start;
+  }
+  .security-icon { font-size: 20px; line-height: 1; }
+  .security-body .title { font-weight: 700; font-size: 14px; color: var(--red); margin-bottom: 4px; }
+  .security-body .detail { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+
+  /* ── Narrative ── */
+  .narrative-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 9px 0; border-bottom: 1px solid var(--border);
+  }
+  .narrative-row:last-child { border-bottom: none; }
+  .narrative-rank { font-size: 16px; font-weight: 800; color: var(--text-muted); min-width: 22px; }
+  .narrative-body .name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .narrative-body .projects { font-size: 12px; color: var(--text-muted); }
+  .competitor-alert {
+    margin-top: 12px;
+    background: var(--yellow-bg); border: 1px solid var(--yellow);
+    border-radius: 6px; padding: 10px 14px;
+    font-size: 12px; color: var(--text-dim); line-height: 1.5;
+  }
+  .competitor-alert strong { color: var(--yellow); }
+
+  /* ── Market Overview ── */
+  .market-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 8px;
+  }
+  @media (max-width: 800px) { .market-grid { grid-template-columns: repeat(2,1fr); } }
+  .market-card {
+    background: var(--surface);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .market-card .label { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; font-weight: 500; }
+  .market-card .value { font-size: 18px; font-weight: 700; color: var(--text); }
+  .market-card .change { font-size: 12px; margin-top: 2px; }
+
+  /* ── Footer ── */
+  #footer {
+    padding: 20px 40px;
+    color: var(--text-muted);
+    font-size: 11px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- ══ SIDEBAR ══ -->
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <h2>Web3 Daily Brief</h2>
+    <span>DeFi + Chain 合并日报</span>
+  </div>
+  <div class="sidebar-section-title">历史归档</div>
+  <div id="date-nav">
+    <!-- 动态插入 -->
+  </div>
+</nav>
+
+<!-- ══ MAIN ══ -->
+<div id="main">
+  <div id="header">
+    <div class="date-display">
+      <strong id="display-date">2026-03-26 (周四)</strong>
+      <div class="date-display" style="margin-top:2px" id="display-sources">数据源: DefiLlama · L2Beat · rekt.news · Grok</div>
+    </div>
+    <div class="meta">
+      <span id="display-prices">BTC $71,268 · ETH $2,165 · SOL $92</span>
+      <span class="sentiment-badge sentiment-fear" id="display-sentiment">😱 极度恐惧 10</span>
+    </div>
+  </div>
+
+  <div id="content">
+    <!-- 内容由 JS 注入 -->
+  </div>
+
+  <div id="footer">
+    <span id="gen-time">Generated: 2026-03-26 20:55 CST</span>
+    &nbsp;·&nbsp; Sources: DefiLlama API + L2Beat + rekt.news + Grok
+    &nbsp;·&nbsp; <a href="https://github.com/Marcus-Lu6/web3-daily-brief" style="color:var(--accent)">GitHub</a>
+  </div>
+</div>
+
+<!-- ══ DATA ══ -->
+<script>
+// ────────────────────────────────────────────────
+// BRIEF DATA — 每天更新这个对象，其他不用动
+// ────────────────────────────────────────────────
+const BRIEFS = {
+
+"2026-03-26": {
+  date: "2026-03-26",
+  weekday: "周四",
+  headline: "全链 DEX 缩量横盘，但 Bitcoin TVL +55% 爆发升至全链 #4、ETH Vol 逆势反弹 +18%；Resolv USR $25M 安全事件稳定币再敲警钟",
+  btc: "$71,268",
+  eth: "$2,165",
+  sol: "$92",
+  fg: 10,
+  fgLabel: "极度恐惧",
+  fgClass: "sentiment-fear",
+  sources: "DefiLlama API + 小时监控(00:00-07:00) + rekt.news + Grok",
+  genTime: "2026-03-26 20:55 CST",
+
+  top3: [
+    {
+      rank: "重要事件 #1",
+      cls: "p0",
+      event: "Bitcoin 链 TVL $4.57B +54.8%，升至全链 #4",
+      impact: "Babylon 驱动 BTC DeFi 爆发，TVL 三天从 $3.29B→$4.07B→$4.57B 连续加速",
+      action: "Bitcoin 链接入优先级提至最高"
+    },
+    {
+      rank: "重要事件 #2",
+      cls: "p0",
+      event: "Resolv USR $25M 安全事件",
+      impact: "AWS 私钥泄露→无抵押铸造 $80M USR，USR 暴跌至 $0.14，FLUID TVL -30%",
+      action: "立即排查 USR 相关集成敞口"
+    },
+    {
+      rank: "重要事件 #3",
+      cls: "p1",
+      event: "Ethereum DEX Vol 逆势反弹 +18%",
+      impact: "Uniswap V4 $579M 超越 V3 成 ETH 最大 DEX，Fluid DEX +37%",
+      action: "确认 Uniswap V4 路由集成完整"
+    }
+  ],
+
+  market: [
+    { label: "DeFi 总 TVL", value: "$96.15B", change: "-0.6%", cls: "change-down" },
+    { label: "DEX Vol 24h", value: "$5.80B", change: "-0.2% 横盘", cls: "change-flat" },
+    { label: "Fear & Greed", value: "10", change: "极度恐惧", cls: "change-down" },
+    { label: "安全事件", value: "$25M", change: "Resolv USR", cls: "change-down" }
+  ],
+
+  chains: [
+    { rank:1, name:"Ethereum", type:"L1", score:86, scoreTrend:"↑", tvl:"$55.63B", tvl7d:"-2.4%", tvl7dCls:"change-down", vol:"$1,067M", vol1d:"+17.9%", vol1dCls:"change-up", signal:"Vol 逆势反弹", sigCls:"sig-up" },
+    { rank:2, name:"Solana",   type:"L1", score:83, scoreTrend:"↓", tvl:"$6.55B",  tvl7d:"-5.4%", tvl7dCls:"change-down", vol:"$1,601M", vol1d:"-10.6%", vol1dCls:"change-down", signal:"Vol 仍 #1 但回落", sigCls:"sig-down" },
+    { rank:3, name:"BSC",      type:"L1", score:77, scoreTrend:"→", tvl:"$5.52B",  tvl7d:"-4.2%", tvl7dCls:"change-down", vol:"$825M",  vol1d:"-1.0%",  vol1dCls:"change-down", signal:"PancakeSwap 稳定", sigCls:"" },
+    { rank:4, name:"Bitcoin",  type:"L1", score:76, scoreTrend:"↑", tvl:"$4.57B",  tvl7d:"+54.8%",tvl7dCls:"change-hot",  vol:"—",      vol1d:"—",       vol1dCls:"",           signal:"TVL +55% 暴涨", sigCls:"sig-hot" },
+    { rank:5, name:"Base",     type:"L2", score:74, scoreTrend:"↓", tvl:"$4.18B",  tvl7d:"-0.9%", tvl7dCls:"change-down", vol:"$714M",  vol1d:"-4.2%",  vol1dCls:"change-down", signal:"TVL 全榜最稳", sigCls:"sig-up" },
+    { rank:6, name:"Polygon",  type:"L1", score:68, scoreTrend:"↑", tvl:"$1.31B",  tvl7d:"+3.4%", tvl7dCls:"change-up",   vol:"$307M",  vol1d:"+38.9%", vol1dCls:"change-up",   signal:"Polymarket 驱动", sigCls:"sig-hot" },
+    { rank:7, name:"Arbitrum", type:"L2", score:66, scoreTrend:"↓", tvl:"$2.01B",  tvl7d:"-2.5%", tvl7dCls:"change-down", vol:"$300M",  vol1d:"-6.2%",  vol1dCls:"change-down", signal:"温和回调", sigCls:"" },
+    { rank:8, name:"Hyperliquid",type:"L1",score:62,scoreTrend:"↓",tvl:"$1.84B",  tvl7d:"-1.0%", tvl7dCls:"change-down", vol:"$186M",  vol1d:"-22.5%", vol1dCls:"change-down", signal:"Vol 收缩 -23%", sigCls:"sig-warn" },
+    { rank:9, name:"Avalanche",type:"L1", score:55, scoreTrend:"→", tvl:"$778M",   tvl7d:"-1.4%", tvl7dCls:"change-down", vol:"$169M",  vol1d:"+1.8%",  vol1dCls:"change-up",   signal:"Vol 微涨稳定", sigCls:"sig-up" },
+    { rank:10,name:"Tron",     type:"L1", score:53, scoreTrend:"↓", tvl:"$4.15B",  tvl7d:"+2.1%", tvl7dCls:"change-up",   vol:"$42M",   vol1d:"-51.2%", vol1dCls:"change-down", signal:"Vol 腰斩！", sigCls:"sig-down" },
+    { rank:11,name:"Plasma",   type:"L1", score:52, scoreTrend:"↓", tvl:"$1.45B",  tvl7d:"+22.8%",tvl7dCls:"change-up",   vol:"$12M",   vol1d:"—",       vol1dCls:"",           signal:"TVL 增速放缓", sigCls:"" },
+    { rank:12,name:"Near",     type:"L1", score:50, scoreTrend:"→", tvl:"$111M",   tvl7d:"-7.2%", tvl7dCls:"change-down", vol:"$83M",   vol1d:"-10.8%", vol1dCls:"change-down", signal:"NEAR Intents 稳", sigCls:"" },
+    { rank:13,name:"Sui",      type:"L1", score:49, scoreTrend:"→", tvl:"$606M",   tvl7d:"-0.9%", tvl7dCls:"change-down", vol:"$51M",   vol1d:"-1.9%",  vol1dCls:"change-down", signal:"平稳", sigCls:"" },
+    { rank:14,name:"Monad",    type:"L1", score:48, scoreTrend:"↑", tvl:"$332M",   tvl7d:"-2.9%", tvl7dCls:"change-down", vol:"$47M",   vol1d:"🆕",       vol1dCls:"",           signal:"DEX 首次入榜", sigCls:"sig-new" },
+    { rank:15,name:"Mantle",   type:"L2", score:47, scoreTrend:"↓", tvl:"$652M",   tvl7d:"+3.4%", tvl7dCls:"change-up",   vol:"$5M",    vol1d:"—",       vol1dCls:"",           signal:"TVL 正增长", sigCls:"sig-up" }
+  ],
+
+  defiSignals: [
+    {
+      title: "Babylon Protocol — BTC Restaking 持续爆发",
+      stars: "★★★",
+      cls: "star3",
+      stats: [
+        { k:"TVL", v:"$3.31B", cls:"" },
+        { k:"1d", v:"+12.5%", cls:"hot" },
+        { k:"7d", v:"+79.5%", cls:"hot" },
+        { k:"赛道", v:"Bitcoin Restaking", cls:"" }
+      ],
+      points: [
+        "一周内 TVL 从 $1.86B 飙至 $3.31B，涨幅近翻倍",
+        "Smart money 在极度恐惧时仍持续流入 BTCFi",
+        "Lombard Finance + Babylon 策略 APY ~3.89%",
+        "连续三日 Bitcoin 链 TVL 加速：+33% → +55%"
+      ],
+      action: "交易量机会：BTC 相关代币（LBTC/WBTC等）交易需求急增，确认 Babylon/Lombard/Solv 集成情况"
+    },
+    {
+      title: "Resolv USR 安全事件 — $25M 被盗",
+      stars: "★★★",
+      cls: "star3",
+      stats: [
+        { k:"损失", v:"~$25M", cls:"cold" },
+        { k:"11,400 ETH", v:"", cls:"" },
+        { k:"USR价格", v:"$1→$0.14", cls:"cold" },
+        { k:"传导", v:"FLUID -30%", cls:"cold" }
+      ],
+      points: [
+        "AWS KMS 私钥泄露 → SERVICE_ROLE 无抵押铸造 $80M USR",
+        "协议已暂停合约、烧毁 9M 恶意 USR",
+        "启动允许列表赎回（~$0.93/dollar）",
+        "传导风险：使用 USR 作抵押品的借贷协议面临坏账"
+      ],
+      action: "立即清查：是否有 USR 相关集成，关注传导到 Fluid 等协议"
+    },
+    {
+      title: "Pendle — 收益率交易热度飙升",
+      stars: "★★",
+      cls: "star2",
+      stats: [
+        { k:"DEX Vol 24h", v:"$27.5M", cls:"hot" },
+        { k:"Vol变化", v:"+157%", cls:"hot" },
+        { k:"TVL", v:"$2.12B", cls:"" },
+        { k:"TVL 7d", v:"-6.3%", cls:"cold" }
+      ],
+      points: [
+        "TVL 下跌但交易量暴涨 = 市场在积极交易收益率头寸",
+        "限价单激励驱动流动性 5x 隔夜增长，限价单占比 45%+",
+        "机构信号：BTC 大仓位 (100-200 BTC) 在 Boros 上对冲",
+        "成为 USDG 最大持有者"
+      ],
+      action: "收益率交易赛道热度持续上升，关注是否能持续扩量"
+    },
+    {
+      title: "Tristero 跨链聚合器 — Vol +104% 爆发",
+      stars: "★★",
+      cls: "star2",
+      stats: [
+        { k:"Vol 24h", v:"$117M", cls:"hot" },
+        { k:"变化", v:"+104%", cls:"hot" },
+        { k:"覆盖链", v:"20+", cls:"" },
+        { k:"模式", v:"Intent", cls:"" }
+      ],
+      points: [
+        "凌晨 03:00 小时监控首次上榜，持续放量",
+        "覆盖 Base / OP / ETH / Avalanche 等 20+ 链",
+        "Intent 模式跨链聚合器新势力",
+        "需验证交易真实性，排除刷量可能"
+      ],
+      action: "若 Vol 持续 $100M+，有接入价值，值得持续跟踪"
+    },
+    {
+      title: "Spark Liquidity Layer — Sky 生态资金涌入",
+      stars: "★★",
+      cls: "star2",
+      stats: [
+        { k:"TVL", v:"$1.82B", cls:"" },
+        { k:"1d", v:"+17.6%", cls:"hot" },
+        { k:"7d", v:"+16.8%", cls:"hot" },
+        { k:"1h 峰值", v:"+20.2%", cls:"hot" }
+      ],
+      points: [
+        "凌晨 01:00 瞬间 $300M 资金涌入（$1.5B→$1.81B）",
+        "Sky/MakerDAO 生态核心借贷+流动性协议",
+        "资金持续稳定流入，趋势向好"
+      ],
+      action: "关注 Sky/MakerDAO 是否有新策略上线驱动"
+    },
+    {
+      title: "Polygon Vol +39% — Polymarket 预测市场扩张",
+      stars: "★★",
+      cls: "star2",
+      stats: [
+        { k:"Polygon Vol", v:"$307M", cls:"hot" },
+        { k:"Vol 1d", v:"+38.9%", cls:"hot" },
+        { k:"Polymarket", v:"$152M", cls:"" },
+        { k:"占比", v:"50%", cls:"" }
+      ],
+      points: [
+        "Polygon Vol 从 $221M 暴涨至 $307M，全主要链涨幅最大",
+        "Polymarket $152M (+6.5%) 占 Polygon 总 Vol 的 50%",
+        "预测市场 = 非投机流量，极度恐惧中反而活跃"
+      ],
+      action: "Polygon 正从传统 DeFi 链转型为「预测市场链」，关注预测类代币交易需求"
+    }
+  ],
+
+  protocols: [
+    { rank:1,  name:"Aave V3",              tvl:"$24.80B", d1:"-0.86%", d1c:"change-down",  d7:"+1.88%",  d7c:"change-up",   sig:"稳定" },
+    { rank:2,  name:"Lido",                 tvl:"$19.88B", d1:"+0.45%", d1c:"change-up",    d7:"-2.16%",  d7c:"change-down", sig:"微跌" },
+    { rank:3,  name:"SSV Network",          tvl:"$15.44B", d1:"+1.93%", d1c:"change-up",    d7:"+2.03%",  d7c:"change-up",   sig:"质押稳健" },
+    { rank:4,  name:"EigenCloud",           tvl:"$9.15B",  d1:"+1.03%", d1c:"change-up",    d7:"-4.38%",  d7c:"change-down", sig:"Restaking 降温" },
+    { rank:5,  name:"Morpho V1",            tvl:"$7.03B",  d1:"+4.86%", d1c:"change-up",    d7:"+3.15%",  d7c:"change-up",   sig:"借贷持续吸金 🟢" },
+    { rank:6,  name:"Sky Lending",          tvl:"$6.77B",  d1:"-4.31%", d1c:"change-down",  d7:"-9.52%",  d7c:"change-down", sig:"CDP 流出 🔴" },
+    { rank:7,  name:"Ethena USDe",          tvl:"$5.91B",  d1:"-0.04%", d1c:"change-flat",  d7:"-0.08%",  d7c:"change-flat", sig:"持平" },
+    { rank:8,  name:"ether.fi Stake",       tvl:"$5.37B",  d1:"-3.65%", d1c:"change-down",  d7:"-8.03%",  d7c:"change-down", sig:"LRT 持续流出 🔴" },
+    { rank:9,  name:"Hyperliquid",          tvl:"$4.70B",  d1:"0%",     d1c:"change-flat",  d7:"+3.42%",  d7c:"change-up",   sig:"永续稳定" },
+    { rank:10, name:"Babylon ⭐",           tvl:"$3.31B",  d1:"+12.5%", d1c:"change-hot",   d7:"+79.5%",  d7c:"change-hot",  sig:"本周之星 🔥" },
+    { rank:11, name:"SparkLend",            tvl:"$2.13B",  d1:"-0.14%", d1c:"change-flat",  d7:"-1.67%",  d7c:"change-down", sig:"持平" },
+    { rank:12, name:"Pendle",               tvl:"$2.12B",  d1:"-0.43%", d1c:"change-down",  d7:"-6.31%",  d7c:"change-down", sig:"TVL跌 Vol涨" },
+    { rank:13, name:"Curve DEX",            tvl:"$1.84B",  d1:"+0.11%", d1c:"change-up",    d7:"-1.44%",  d7c:"change-down", sig:"持平" },
+    { rank:14, name:"Spark Liquidity Layer",tvl:"$1.82B",  d1:"+0.22%", d1c:"change-up",    d7:"+16.8%",  d7c:"change-hot",  sig:"资金涌入 🟢" },
+    { rank:15, name:"PancakeSwap",          tvl:"$1.69B",  d1:"+0.98%", d1c:"change-up",    d7:"+0.92%",  d7c:"change-up",   sig:"微涨" }
+  ],
+
+  dexTop: [
+    { rank:1,  name:"PancakeSwap V3",         vol:"$654M", d1:"-12.7%", d1c:"change-down" },
+    { rank:2,  name:"Uniswap V4 ⭐",          vol:"$579M", d1:"+30.4%", d1c:"change-up" },
+    { rank:3,  name:"Uniswap V3",             vol:"$472M", d1:"0%",     d1c:"change-flat" },
+    { rank:4,  name:"Raydium AMM",            vol:"$258M", d1:"-3.6%",  d1c:"change-down" },
+    { rank:5,  name:"Fluid DEX",              vol:"$256M", d1:"+37.0%", d1c:"change-up" },
+    { rank:6,  name:"Aerodrome",              vol:"$243M", d1:"-19.5%", d1c:"change-down" },
+    { rank:7,  name:"PancakeSwap Infinity",   vol:"$214M", d1:"+27.5%", d1c:"change-up" },
+    { rank:8,  name:"Orca DEX",               vol:"$195M", d1:"-29.2%", d1c:"change-down" },
+    { rank:9,  name:"BisonFi",                vol:"$193M", d1:"+10.3%", d1c:"change-up" },
+    { rank:10, name:"HumidiFi",               vol:"$186M", d1:"-23.5%", d1c:"change-down" }
+  ],
+
+  dexMovers: [
+    { name:"Tristero",       vol:"$117M", change:"+104%",  note:"跨链聚合器 Intent 模式，20+ 链" },
+    { name:"Pendle",         vol:"$27.5M",change:"+157%",  note:"收益率交易赛道活跃" },
+    { name:"Ondo",           vol:"$74M",  change:"+91%",   note:"RWA 赛道趋势性上升" },
+    { name:"Figure Markets", vol:"$55M",  change:"+128%",  note:"RWA DEX" },
+    { name:"Byreal",         vol:"$34M",  change:"+106%",  note:"" }
+  ],
+
+  security: [
+    { name:"Resolv USR", loss:"~$25M", chain:"Ethereum", type:"AWS 私钥泄露 → 无抵押铸造 $80M USR" }
+  ],
+
+  narratives: [
+    { rank:"1", name:"AI Agent + 链上自主执行", projects:"OKX Agentic Wallet" },
+    { rank:"2", name:"BTC DeFi / Restaking", projects:"Babylon, Lombard" },
+    { rank:"3", name:"Meme 回暖", projects:"PEPE, SOL meme" },
+    { rank:"4", name:"RWA", projects:"Figure Markets, Ondo" }
+  ],
+  competitorAlert: "⚠️ <strong>OKX Agentic Wallet</strong> 正式发布 — AI Agent 专用钱包，~20 链覆盖 + TEE 安全，被市场评为「真正的 AI 基础设施」。AI Agent Wallet 赛道竞争开启。",
+
+  actions: [
+    { p:"P0", item:"Bitcoin 链接入优先级提至最高", note:"TVL $4.57B +55% 连续三日加速，已升至全链 #4" },
+    { p:"P0", item:"Resolv USR 敞口立即排查", note:"传导到 Fluid TVL -30%，清查相关集成" },
+    { p:"P0", item:"确认 Uniswap V4 路由集成完整", note:"V4 $579M 已超 V3 成 ETH 最大 DEX" },
+    { p:"P1", item:"推进 Babylon/Lombard/Solv 集成", note:"BTCFi 7d +79.5%，本周最大交易量窗口" },
+    { p:"P1", item:"跟踪 Tristero 跨链聚合器", note:"+104% $117M，Intent 模式，20+ 链" },
+    { p:"P1", item:"关注 Fluid DEX 增长", note:"+37% $256M，连续异动，已是 Top 5 DEX" },
+    { p:"P1", item:"评估 Polygon Polymarket 生态", note:"Vol +39% 爆发，Polymarket $152M 占半壁江山" },
+    { p:"P2", item:"监控 Tron Vol 是否恢复", note:"Vol -51% 腰斩，若持续低迷需降优先级" },
+    { p:"P2", item:"持续关注 OKX Agentic Wallet", note:"AI Agent Wallet 赛道竞品已落地" }
+  ],
+
+  alerts: [
+    { time:"00:00", level:"P1", levelCls:"level-p1", text:"<strong>Mode Network</strong> TVL -53%（$80M → $37M 资金大量撤出）" },
+    { time:"04:00", level:"WATCH", levelCls:"level-watch", text:"<strong>Bitcoin Chain</strong> TVL +4.1%/1h，凌晨持续攀升，04:00 达 $4.36B" },
+    { time:"07:00", level:"—", levelCls:"", text:"无新增链级告警，链层面进入平稳期" }
+  ]
+}
+
+}; // end BRIEFS
+
+// ────────────────────────────────────────────────
+// RENDER ENGINE
+// ────────────────────────────────────────────────
+const dates = Object.keys(BRIEFS).sort().reverse();
+let currentDate = dates[0];
+
+function buildNav() {
+  const nav = document.getElementById('date-nav');
+  nav.innerHTML = dates.map((d, i) => {
+    const b = BRIEFS[d];
+    return `<a class="date-link ${i===0?'active':''}" onclick="loadBrief('${d}')" id="nav-${d}">
+      <span class="dot"></span>
+      ${d} ${b.weekday}
+      ${i===0 ? '<span class="badge-new">NEW</span>' : ''}
+    </a>`;
+  }).join('');
+}
+
+function loadBrief(date) {
+  currentDate = date;
+  document.querySelectorAll('.date-link').forEach(el => el.classList.remove('active'));
+  document.getElementById('nav-'+date).classList.add('active');
+  renderBrief(BRIEFS[date]);
+  window.scrollTo(0, 0);
+}
+
+function renderBrief(b) {
+  // header
+  document.getElementById('display-date').textContent = `${b.date} (${b.weekday})`;
+  document.getElementById('display-sources').textContent = `数据源: ${b.sources}`;
+  document.getElementById('display-prices').textContent = `BTC ${b.btc} · ETH ${b.eth} · SOL ${b.sol}`;
+  const sb = document.getElementById('display-sentiment');
+  sb.className = `sentiment-badge ${b.fgClass}`;
+  sb.textContent = `${b.fg <= 25 ? '😱' : b.fg <= 45 ? '😟' : b.fg <= 55 ? '😐' : b.fg <= 75 ? '😊' : '🤑'} ${b.fgLabel} ${b.fg}`;
+  document.getElementById('gen-time').textContent = `Generated: ${b.genTime}`;
+
+  const content = document.getElementById('content');
+
+  content.innerHTML = `
+    ${renderSummary(b)}
+    ${renderTop3(b)}
+    ${renderMarket(b)}
+    ${renderChains(b)}
+    ${renderDefiSignals(b)}
+    ${renderProtocols(b)}
+    ${renderDex(b)}
+    ${renderSecurity(b)}
+    ${renderNarratives(b)}
+    ${renderActions(b)}
+    ${renderAlerts(b)}
+  `;
+}
+
+function renderSummary(b) {
+  return `<div class="section">
+    <div class="summary-card">
+      <div class="headline">${b.headline}</div>
+      <div class="meta-row">
+        <span class="price-pill"><span class="label">BTC</span>${b.btc}</span>
+        <span class="price-pill"><span class="label">ETH</span>${b.eth}</span>
+        <span class="price-pill"><span class="label">SOL</span>${b.sol}</span>
+        <span class="price-pill"><span class="label">F&G</span>${b.fg} ${b.fgLabel}</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderTop3(b) {
+  return `<div class="section">
+    <div class="section-title">⚡ 今日最重要 3 件事</div>
+    <div class="top3-grid">
+      ${b.top3.map(t => `
+        <div class="top3-card ${t.cls}">
+          <div class="rank">${t.rank}</div>
+          <div class="event">${t.event}</div>
+          <div class="impact">${t.impact}</div>
+          <span class="action">→ ${t.action}</span>
+        </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function renderMarket(b) {
+  return `<div class="section">
+    <div class="section-title">🌐 市场总览</div>
+    <div class="market-grid">
+      ${b.market.map(m => `
+        <div class="market-card">
+          <div class="label">${m.label}</div>
+          <div class="value">${m.value}</div>
+          <div class="change ${m.cls}">${m.change}</div>
+        </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function renderChains(b) {
+  const rows = b.chains.map(c => `
+    <tr>
+      <td class="rank-num">${c.rank}</td>
+      <td><span class="chain-name">${c.name}</span><span class="chain-type">${c.type}</span></td>
+      <td class="score-bar-cell">
+        <div class="score-bar">
+          <div class="bar-bg"><div class="bar-fill" style="width:${c.score}%"></div></div>
+          <span class="val">${c.score}</span>
+          <span style="color:var(--text-muted);font-size:11px">${c.scoreTrend}</span>
+        </div>
+      </td>
+      <td>${c.tvl}</td>
+      <td class="${c.tvl7dCls}">${c.tvl7d}</td>
+      <td>${c.vol}</td>
+      <td class="${c.vol1dCls}">${c.vol1d}</td>
+      <td>${c.sigCls ? `<span class="signal-tag ${c.sigCls}">${c.signal}</span>` : `<span class="dim">${c.signal}</span>`}</td>
+    </tr>`).join('');
+
+  return `<div class="section">
+    <div class="section-title">⛓️ 链热度榜 Top 15</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>链</th><th>Hotness</th><th>TVL</th><th>TVL 7d</th>
+            <th>DEX Vol 24h</th><th>Vol 1d</th><th>信号</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <div style="margin-top:8px;font-size:11px;color:var(--text-muted)">
+      Hotness 满分 100 | 六维加权：增长率(25%) · DEX Vol(20%) · 社交热度(20%) · TVL(15%) · 事件(15%) · Gas(5%)
+    </div>
+  </div>`;
+}
+
+function renderDefiSignals(b) {
+  const cards = b.defiSignals.map(s => `
+    <div class="signal-card ${s.cls}">
+      <div class="signal-header">
+        <div class="title">${s.title}</div>
+        <span class="star-badge">${s.stars}</span>
+      </div>
+      <div class="signal-stats">
+        ${s.stats.map(st => `<span class="stat-pill"><span class="k">${st.k}</span><span class="v ${st.cls}">${st.v}</span></span>`).join('')}
+      </div>
+      <ul class="signal-points">
+        ${s.points.map(p => `<li>${p}</li>`).join('')}
+      </ul>
+      <div class="signal-action"><span class="label">→</span>${s.action}</div>
+    </div>`).join('');
+
+  return `<div class="section">
+    <div class="section-title">🔥 DeFi 核心信号</div>
+    <div class="signal-grid">${cards}</div>
+  </div>`;
+}
+
+function renderProtocols(b) {
+  const rows = b.protocols.map(p => `
+    <tr>
+      <td class="rank-num">${p.rank}</td>
+      <td style="font-weight:600">${p.name}</td>
+      <td>${p.tvl}</td>
+      <td class="${p.d1c}">${p.d1}</td>
+      <td class="${p.d7c}">${p.d7}</td>
+      <td class="dim" style="font-size:12px">${p.sig}</td>
+    </tr>`).join('');
+
+  return `<div class="section">
+    <div class="section-title">📊 协议 TVL Top 15</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>#</th><th>协议</th><th>TVL</th><th>1d</th><th>7d</th><th>信号</th></tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+function renderDex(b) {
+  const rows = b.dexTop.map(d => `
+    <tr>
+      <td class="rank-num">${d.rank}</td>
+      <td style="font-weight:600">${d.name}</td>
+      <td>${d.vol}</td>
+      <td class="${d.d1c}">${d.d1}</td>
+    </tr>`).join('');
+
+  const movers = b.dexMovers.map(m => `
+    <tr>
+      <td style="font-weight:600">${m.name}</td>
+      <td>${m.vol}</td>
+      <td class="change-hot">${m.change}</td>
+      <td class="dim" style="font-size:12px">${m.note}</td>
+    </tr>`).join('');
+
+  return `<div class="section">
+    <div class="section-title">💹 DEX Volume</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div>
+        <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;font-weight:600">Top 10 DEX</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>DEX</th><th>Vol 24h</th><th>1d</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;font-weight:600">放量异动（>50% & >$5M）</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>DEX</th><th>Volume</th><th>变化</th><th>说明</th></tr></thead>
+            <tbody>${movers}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderSecurity(b) {
+  const cards = b.security.map(s => `
+    <div class="security-card">
+      <div class="security-icon">🚨</div>
+      <div class="security-body">
+        <div class="title">${s.name} — 损失 ${s.loss}</div>
+        <div class="detail">链: ${s.chain} &nbsp;·&nbsp; 类型: ${s.type}</div>
+      </div>
+    </div>`).join('');
+
+  return `<div class="section">
+    <div class="section-title">🛡️ 安全事件</div>
+    ${cards}
+  </div>`;
+}
+
+function renderNarratives(b) {
+  const rows = b.narratives.map(n => `
+    <div class="narrative-row">
+      <div class="narrative-rank">${n.rank}</div>
+      <div class="narrative-body">
+        <div class="name">${n.name}</div>
+        <div class="projects">${n.projects}</div>
+      </div>
+    </div>`).join('');
+
+  return `<div class="section">
+    <div class="section-title">📣 社交叙事 & 竞品动态</div>
+    ${rows}
+    <div class="competitor-alert">${b.competitorAlert}</div>
+  </div>`;
+}
+
+function renderActions(b) {
+  const rows = b.actions.map(a => `
+    <tr>
+      <td><span class="action-${a.p.toLowerCase()}">${a.p}</span></td>
+      <td style="font-weight:600">${a.item}</td>
+      <td class="dim" style="font-size:12px">${a.note}</td>
+    </tr>`).join('');
+
+  return `<div class="section">
+    <div class="section-title">🎯 PM 行动清单</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>优先级</th><th>行动项</th><th>说明</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+function renderAlerts(b) {
+  const rows = b.alerts.map(a => `
+    <div class="alert-row">
+      <span class="alert-time">${a.time}</span>
+      ${a.levelCls ? `<span class="alert-level ${a.levelCls}">${a.level}</span>` : `<span style="min-width:40px"></span>`}
+      <span class="alert-text">${a.text}</span>
+    </div>`).join('');
+
+  return `<div class="section">
+    <div class="section-title">⚡ 小时监控告警摘要</div>
+    ${rows}
+  </div>`;
+}
+
+// ── Init ──
+buildNav();
+renderBrief(BRIEFS[currentDate]);
+</script>
+</body>
+</html>
